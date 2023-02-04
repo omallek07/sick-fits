@@ -30,7 +30,7 @@ const GlobalStyles = createGlobalStyle`
     font-family: 'radnika_next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     padding: 0;
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 62.5%;
     line-height: 2;
   }
   a {
