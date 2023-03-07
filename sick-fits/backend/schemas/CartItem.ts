@@ -1,5 +1,5 @@
-import { list } from '@keystone-next/keystone/schema';
-import { integer, relationship } from '@keystone-next/fields';
+import { integer, relationship } from '@keystone-6/core/fields';
+import { list } from '@keystone-6/core';
 
 export const CartItem = list({
   ui: {
@@ -8,10 +8,9 @@ export const CartItem = list({
     },
   },
   fields: {
-    // TODO - Custom label
     quantity: integer({
       defaultValue: 1,
-      isRequired: true,
+      validation: { isRequired: true },
     }),
     product: relationship({ ref: 'Product' }),
     user: relationship({ ref: 'User.cart' }),

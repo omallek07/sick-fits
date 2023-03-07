@@ -1,24 +1,28 @@
-import 'dotenv/config';
-import { config, createSchema } from '@keystone-next/keystone/schema';
-import { createAuth } from '@keystone-next/auth';
-import {
-  withItemData,
-  statelessSessions,
-} from '@keystone-next/keystone/session';
-import { User } from './schemas/User';
-import { Product } from './schemas/Product';
-import { ProductImage } from './schemas/ProductImage';
+import { createAuth } from '@keystone-6/auth';
+import { config } from '@keystone-6/core';
+import { statelessSessions } from '@keystone-6/core/session';
+// import { permissionsList } from './schemas/fields';
+// import { Role } from './schemas/Role';
+// import { OrderItem } from './schemas/OrderItem';
+// import { Order } from './schemas/Order';
 import { CartItem } from './schemas/CartItem';
+import { ProductImage } from './schemas/ProductImage';
+import { Product } from './schemas/Product';
+import { User } from './schemas/User';
+import 'dotenv/config';
 import { insertSeedData } from './seed-data';
 import { sendPasswordResetEmail } from './lib/mail';
+import { extendGraphqlSchema } from './mutations';
+import { addCompatibilityForQueries } from './compat';
 
-const databaseURL =
-  process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
+const databaseURL = process.env.DATABASE_URL || 'file:./app.db';
 
 const sessionConfig = {
-  maxAge: 60 * 60 * 24 * 360, // how long they should stay signed in
+  maxAge: 60 * 60 * 24 * 360, // How long they stay signed in?
   secret: process.env.COOKIE_SECRET,
 };
+
+const permissionsList = ['a', 'b'];
 
 const { withAuth } = createAuth({
   listKey: 'User',
@@ -26,10 +30,12 @@ const { withAuth } = createAuth({
   secretField: 'password',
   initFirstItem: {
     fields: ['name', 'email', 'password'],
-    // TODO Add in initial roles
+    // TODO: Add in inital roles here
   },
+  sessionData: `id name email role { ${permissionsList.join(' ')} }`,
   passwordResetLink: {
     async sendToken(args) {
+      // send the email
       await sendPasswordResetEmail(args.token, args.identity);
     },
   },
@@ -37,6 +43,7 @@ const { withAuth } = createAuth({
 
 export default withAuth(
   config({
+    // @ts-ignore
     server: {
       cors: {
         origin: [process.env.FRONTEND_URL],
@@ -44,27 +51,33 @@ export default withAuth(
       },
     },
     db: {
-      adapter: 'mongoose',
+      provider: 'sqlite',
       url: databaseURL,
-      async onConnect(keystone) {
+      async onConnect(context) {
+        console.log('Connected to the database!');
         if (process.argv.includes('--seed-data')) {
-          await insertSeedData(keystone);
+          await insertSeedData(context.prisma);
         }
       },
     },
-    lists: createSchema({
+    lists: {
       // Schema items go in here
       User,
       Product,
       ProductImage,
       CartItem,
-    }),
-    ui: {
-      // Show UI only for people who pass this test
-      isAccessAllowed: ({ session }) => !!session?.data,
+      // OrderItem,
+      // Order,
+      // Role,
     },
-    session: withItemData(statelessSessions(sessionConfig), {
-      User: 'id',
-    }),
+    extendGraphqlSchema: (schema) =>
+      addCompatibilityForQueries(extendGraphqlSchema(schema)),
+    ui: {
+      // Show the UI only for poeple who pass this test
+      isAccessAllowed: ({ session }) =>
+        // console.log(session);
+        !!session?.data,
+    },
+    session: statelessSessions(sessionConfig),
   })
 );
