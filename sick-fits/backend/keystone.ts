@@ -3,8 +3,8 @@ import { config } from '@keystone-6/core';
 import { statelessSessions } from '@keystone-6/core/session';
 // import { permissionsList } from './schemas/fields';
 // import { Role } from './schemas/Role';
-// import { OrderItem } from './schemas/OrderItem';
-// import { Order } from './schemas/Order';
+import { OrderItem } from './schemas/OrderItem';
+import { Order } from './schemas/Order';
 import { CartItem } from './schemas/CartItem';
 import { ProductImage } from './schemas/ProductImage';
 import { Product } from './schemas/Product';
@@ -66,8 +66,8 @@ export default withAuth(
       Product,
       ProductImage,
       CartItem,
-      // OrderItem,
-      // Order,
+      OrderItem,
+      Order,
       // Role,
     },
     extendGraphqlSchema: (schema) =>
