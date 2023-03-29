@@ -1,14 +1,14 @@
 import { createAuth } from '@keystone-6/auth';
 import { config } from '@keystone-6/core';
 import { statelessSessions } from '@keystone-6/core/session';
-// import { permissionsList } from './schemas/fields';
-// import { Role } from './schemas/Role';
+import { permissionsList } from './schemas/fields';
 import { OrderItem } from './schemas/OrderItem';
 import { Order } from './schemas/Order';
 import { CartItem } from './schemas/CartItem';
 import { ProductImage } from './schemas/ProductImage';
 import { Product } from './schemas/Product';
 import { User } from './schemas/User';
+import { Role } from './schemas/Role';
 import 'dotenv/config';
 import { insertSeedData } from './seed-data';
 import { sendPasswordResetEmail } from './lib/mail';
@@ -22,15 +22,12 @@ const sessionConfig = {
   secret: process.env.COOKIE_SECRET,
 };
 
-const permissionsList = ['a', 'b'];
-
 const { withAuth } = createAuth({
   listKey: 'User',
   identityField: 'email',
   secretField: 'password',
   initFirstItem: {
     fields: ['name', 'email', 'password'],
-    // TODO: Add in inital roles here
   },
   sessionData: `id name email role { ${permissionsList.join(' ')} }`,
   passwordResetLink: {
@@ -68,7 +65,7 @@ export default withAuth(
       CartItem,
       OrderItem,
       Order,
-      // Role,
+      Role,
     },
     extendGraphqlSchema: (schema) =>
       addCompatibilityForQueries(extendGraphqlSchema(schema)),

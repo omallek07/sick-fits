@@ -1,14 +1,32 @@
-import { integer, text, relationship, virtual } from '@keystone-6/core/fields';
-import { list } from '@keystone-6/core';
+import {
+  integer,
+=  text,
+  relationship,
+  virtual,
+} from '@keystone-6/core/fields';
+import { list, graphql } from '@keystone-6/core';
+import { isSignedIn, rules } from '../access';
 import formatMoney from '../lib/formatMoney';
 
 export const Order = list({
+  access: {
+    operation: {
+      create: isSignedIn,
+      update: () => false,
+      delete: () => false,
+    },
+    filter: {
+      query: rules.canOrder,
+    },
+  },
   fields: {
     label: virtual({
-      graphQLReturnType: 'String',
-      resolver(item): string {
-        return `${formatMoney(item?.total || 0)}`;
-      },
+      field: graphql.field({
+        type: graphql.String,
+        resolve(item) {
+          return `${formatMoney(item.total)}`;
+        },
+      }),
     }),
     total: integer(),
     items: relationship({ ref: 'OrderItem.order', many: true }),

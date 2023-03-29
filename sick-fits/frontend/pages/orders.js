@@ -63,7 +63,7 @@ export default function AllOrdersPage() {
           allOrders.map(order => (
             <OrderItemStyles>
               <Link href={`/order/${order.id}`}>
-                <>
+                <a>
                   <div className='order-meta'>
                     <p>{countItemsInAnOrder(order)} Item{countItemsInAnOrder(order) === 1 ? '' : 's'}</p>
                     <p>{order.items.length} Product{order.items.length === 1 ? '' : 's'}</p>
@@ -72,7 +72,7 @@ export default function AllOrdersPage() {
                   <div className='images'>
                     {order.items.map(item => <img key={`image-${item.id}`} src={item.photo?.image?.publicUrlTransformed} alt={item.name} />)}
                   </div>
-                </>
+                </a>
               </Link>
             </OrderItemStyles>
           ))
